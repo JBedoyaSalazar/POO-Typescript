@@ -12,7 +12,21 @@ export class ProductHttpService implements IProductService {
     }
 
     async update(id: Product["id"], changes: UpdateProductDto): Promise<Product> {
-        const { data } = await axios.put<Product>(`${this.API_URL}/${id}`, changes);
+        const product = await this.findOne(id);
+        if (!product) {
+            throw new Error('Product not found');
+        }
+        
+        const dto: UpdateProductDto = {
+            title: product.title,
+            price: product.price,
+            description: product.description,
+            images: product.images,
+            categoryId: product.category.id,
+            ...changes
+        };
+
+        const { data } = await axios.put<Product>(`${this.API_URL}/${id}`, dto);
         return data;
     }
 
